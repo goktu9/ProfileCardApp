@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, Pressable} from 'react-native'; // +++ Import Pressable for interaction.
+import {View, Text, StyleSheet, Pressable, useWindowDimensions} from 'react-native'; // +++ Import useWindowDimensions hook.
 import {useState } from 'react';
 import {Ionicons } from '@expo/vector-icons';
 import {COLORS, SPACING, RADII, FONTS} from '../theme';
@@ -7,20 +7,22 @@ export default function ProfileScreen() {
   const [theme, setTheme] = useState('light');
   const currentTheme = COLORS[theme];
 
-  // +++ Function to toggle between light and dark themes.
+  // +++ Get current window width dynamically.
+  const { width } = useWindowDimensions();
+  
+  // +++ Define breakpoint for large screens.
+  const isLargeScreen = width > 500;
+
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   return (
     <View style={[styles.container, {backgroundColor: currentTheme.bg}]}>
-      
-      {/* +++ Theme Toggle Button (Top Right). */}
       <Pressable 
         onPress={toggleTheme}
         style={styles.themeToggle}
       >
-        {/* +++ Change icon based on current theme (moon/sunny). */}
         <Ionicons 
           name={theme === 'light' ? 'moon' : 'sunny'} 
           size={28} 
@@ -30,11 +32,18 @@ export default function ProfileScreen() {
 
       <View style={[
         styles.card,
-        {backgroundColor: currentTheme.card}
+        { 
+          backgroundColor: currentTheme.card,
+          // +++ Adjust width based on screen size.
+          width: isLargeScreen ? '60%' : '85%',
+          // +++ Adjust padding based on screen size.
+          padding: isLargeScreen ? SPACING.xl : SPACING.lg,
+        }
       ]}>
         <Ionicons
           name="person-circle-outline"
-          size={80}
+          // +++ Adjust icon size based on screen size.
+          size={isLargeScreen ? 100 : 80}
           color={currentTheme.text}
         />
         
@@ -46,10 +55,8 @@ export default function ProfileScreen() {
           Mobile Developer
         </Text>
 
-        {/* +++ Like Button with press feedback. */}
         <Pressable
-          // +++ Change background color when pressed using the 'pressed' state.
-          style={({ pressed }) => [
+          style={({pressed}) => [
             styles.likeButton,
             { backgroundColor: pressed ? '#e63946' : '#ff6b6b' }
           ]}
@@ -70,7 +77,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  // +++ Styles for the absolute positioned theme toggle.
   themeToggle: {
     position: 'absolute',
     top: 50,
@@ -78,14 +84,15 @@ const styles = StyleSheet.create({
     padding: SPACING.sm,
   },
   card: {
-    width: '85%',
+    // +++ Removed fixed width and padding from here (moved to inline styles).
     borderRadius: RADII.md,
     alignItems: 'center',
-    padding: SPACING.lg,
+    // iOS shadow
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
+    // Android shadow
     elevation: 6,
   },
   name: {
@@ -99,7 +106,6 @@ const styles = StyleSheet.create({
     marginTop: SPACING.sm,
     opacity: 0.7,
   },
-  // +++ Styles for the Like button container.
   likeButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -108,7 +114,6 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginTop: SPACING.md,
   },
-  // +++ Styles for the Like button text.
   likeText: {
     color: '#fff',
     fontFamily: FONTS.bold,
